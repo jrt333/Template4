@@ -17,7 +17,7 @@
               <div class="avatar-section">
                 <el-upload
                     v-if="isSelf"
-                    action="http://localhost:8080/file/"
+                    :action="apiBaseUrl + '/file/'"
                     :on-success="fileHandleSuccess"
                     :file-list="imgFileList"
                     accept="image/*"
@@ -296,6 +296,7 @@
 import AppHead from '../common/AppHeader.vue';
 import AppBody from '../common/AppPageBody.vue'
 import AppFoot from '../common/AppFoot.vue'
+import { getApiBaseUrl } from '../../utils/env';
 
 export default {
   name: "me",
@@ -348,6 +349,7 @@ export default {
 
   data() {
     return {
+        apiBaseUrl: getApiBaseUrl(),
       pictureList: [],
       imgFileList:[],
       activeName: '1',

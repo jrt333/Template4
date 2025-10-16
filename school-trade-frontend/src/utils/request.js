@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { getApiBaseUrl } from './env';
 
 const service = axios.create({
     timeout: 20000,
-    baseURL: 'http://localhost:8080',
+    baseURL: getApiBaseUrl(),
     withCredentials: true
 });
 

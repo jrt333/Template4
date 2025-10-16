@@ -4,33 +4,39 @@ const { WebSocketServer } = require('ws');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
-const PORT = 3001;
+const PORT = Number(process.env.WS_PORT || 3001);
+const HOST = process.env.WS_HOST || '0.0.0.0';
+const backendTarget = process.env.BACKEND_BASE_URL || 'http://127.0.0.1:8080';
+const rawUploadsRoute = process.env.UPLOADS_ROUTE || '/uploads';
+const uploadsRoute = rawUploadsRoute.startsWith('/') ? rawUploadsRoute : `/${rawUploadsRoute}`;
+const wsPrefix = (process.env.WS_PREFIX || 'webSocketServer').replace(/^\/+|\/+$/g, '');
 
 // 反向代理到 Spring Boot 8080，讓 http://localhost:3001/uploads/** 能取到圖片
 app.use(
-    '/uploads',
+    uploadsRoute,
     createProxyMiddleware({
-        target: 'http://localhost:8080',
+        target: backendTarget,
         changeOrigin: true,
     })
 );
 
-const server = app.listen(PORT, () => {
-    console.log(`Express + WS server running at http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+    console.log(`Express + WS server running at http://${HOST === '0.0.0.0' ? '0.0.0.0' : HOST}:${PORT}`);
+    console.log(`Proxying ${uploadsRoute} -> ${backendTarget}`);
 });
 
 const wss = new WebSocketServer({ server });
-console.log('WS server on ws://localhost:3001 (path /webSocketServer/<userId> or /<userId>)');
+console.log(`WS server ready on ws(s)://<host>:${PORT}/${wsPrefix}/<userId>`);
 
 const clients = new Map();
 const inbox = new Map();
 
 function parseUserIdFromUrl(url) {
     try {
-        const path = new URL(url, 'ws://localhost').pathname;
+        const path = new URL(url, 'ws://placeholder').pathname;
         const seg = path.split('/').filter(Boolean);
         if (!seg.length) return '';
-        if (seg[0] === 'webSocketServer') return seg[1] || '';
+        if (seg[0] === 'wsPrefix') return seg[1] || '';
         return seg[0];
     } catch { return ''; }
 }

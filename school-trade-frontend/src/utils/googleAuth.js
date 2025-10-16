@@ -1,6 +1,7 @@
+import { getGoogleRedirectUri as resolveGoogleRedirectUri } from './env';
 const GOOGLE_CLIENT_ID = process.env.VUE_APP_GOOGLE_CLIENT_ID || '42722722873-qr08vjl9t9fu498fi6p6s1jv9ooj9q0e.apps.googleusercontent.com';
 const GOOGLE_AUTH_BASE = 'https://accounts.google.com/o/oauth2/v2/auth';
-const GOOGLE_REDIRECT_URI = process.env.VUE_APP_GOOGLE_REDIRECT_URI || 'http://localhost:8080/oauth2/callback';
+const GOOGLE_REDIRECT_URI = resolveGoogleRedirectUri();
 export function getGoogleRedirectUri() {
     /*if (typeof window !== 'undefined' && window.location) {
         return `${window.location.origin}/oauth2/callback`;

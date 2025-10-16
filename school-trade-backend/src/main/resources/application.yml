@@ -20,9 +20,9 @@ spring:
 
   #数据库配置
   datasource:
-    url: jdbc:mysql://localhost:3306/DB_School_trade?serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/db_school_trade?serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT&allowPublicKeyRetrieval=true&useSSL=false
     username: root
-    password: 123456
+    password: 33xx77
     driver-class-name: com.mysql.cj.jdbc.Driver
   #web文件限制配置
   servlet:
@@ -37,9 +37,9 @@ spring:
 
 
 #文件路径
-baseUrl: http://localhost:8080
+baseUrl: ${APP_BASE_URL:http://localhost:8080}
 #C:/exam/xxx/pic  注意这个文件夹路径最好不要有中文，容易出问题！！
-userFilePath: 'C:\Users\xiran\Desktop\capstone-project-s2-2025-neverbug\pic'
+userFilePath: ${USER_FILE_PATH:uploads}
 
 #Mybatis配置
 mybatis:
@@ -59,10 +59,13 @@ google:
   oauth2:
     client-id: 42722722873-qr08vjl9t9fu498fi6p6s1jv9ooj9q0e.apps.googleusercontent.com
     client-secret: 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
-    redirect-uri: http://localhost:8080/oauth2/callback
+    redirect-uri: https://www.bag2bag.me/oauth2/callback
     token-uri: https://oauth2.googleapis.com/token
     token-info-uri: https://oauth2.googleapis.com/tokeninfo
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 gemini:
   api:
     key: AIzaSyCCUd5mn5i1lqvXPxnergau7sWL5YMxOEs
+
+app:
+  frontend-origin: ${APP_FRONTEND_ORIGIN:https://www.bag2bag.me}

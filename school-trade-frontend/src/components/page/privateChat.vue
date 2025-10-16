@@ -404,6 +404,7 @@
 <script>
 import AppHead from '../common/AppHeader.vue'
 import TradeDialog from '../common/TradeDialog.vue'
+import { getApiBaseUrl } from '../../utils/env';
 import { createChatStore, listConversations, resetUnread, recordOutgoing } from '@/stores/chatStoreLite'
 import { sendChat, sendPayload } from '@/utils/websocket'
 import { ensureGlobalChat, subscribeChat, setActivePeer } from '@/utils/chatBus'
@@ -417,6 +418,7 @@ export default {
   },
   data () {
     return {
+        apiBaseUrl: getApiBaseUrl(),
       showAgreeConfirm: false,
       confirmingCard: null,
       selfId: '',
@@ -895,7 +897,7 @@ export default {
 
 
     async rateUser(userId, score) {
-      const base = 'http://localhost:8080'
+      const base = this.apiBaseUrl
       const url = `${base}/user/${encodeURIComponent(userId)}/rating?score=${encodeURIComponent(score)}`
       const res = await fetch(url, { method: 'POST', credentials: 'include' })
       let text = ''

@@ -1,10 +1,11 @@
 // src/utils/websocket.js
 // --- WebSocket 工具模块（适用于 Vue CLI）---
+import { getWsBaseUrl } from './env';
 
 let socket = null;
 
 // WebSocket 服务器基础地址
-const BASE_WS = 'ws://localhost:3001/webSocketServer';
+const BASE_WS = getWsBaseUrl();
 
 /**
  * 拼接 URL
