@@ -70,7 +70,8 @@ export default {
               this.err = (res && res.msg) || 'Login failed'
           })
           .catch((error) => {
-              const msg = error?.msg || error?.response?.data?.msg
+              (error && error.msg) ||
+              (error && error.response && error.response.data && error.response.data.msg)
               this.err = msg || 'Login failed'
           })
           .finally(() => {
