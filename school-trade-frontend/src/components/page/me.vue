@@ -59,7 +59,12 @@
                           :class="starClass(n)"
                       ></i>
                     </div>
-                    <span class="rating-text">{{ userInfo.rating.toFixed(2) }}</span>
+                      <span v-if="userInfo && Number(userInfo.rating) > 0">
+                        {{ (Number(userInfo.rating || 0)).toFixed(2) }}
+                    </span>
+                      <span v-else class="text-gray-400">
+                        No ratings yet
+                    </span>
                   </div>
                 </div>
 
@@ -425,12 +430,12 @@ export default {
       this.userInfo.nickname = this.userInfo.nickname || 'User name';
     },
 
-    starClass (n) {
-      var r = this.userInfo.rating;
-      if (r >= n) return 'is-full';          // 整星
-      if (r >= n - 0.5) return 'is-half';    // 半星
-      return 'is-empty';                      // 空星
-    },
+      starClass (n) {
+          var r = (this.userInfo && this.userInfo.rating) ? Number(this.userInfo.rating) : 0;
+          if (r >= n) return 'is-full';
+          if (r >= n - 0.5) return 'is-half';
+          return 'is-empty';
+      },
 
     async loadOtherProfile (uid) {
       try {

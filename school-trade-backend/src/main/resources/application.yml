@@ -37,7 +37,7 @@ spring:
 
 
 #文件路径
-baseUrl: ${APP_BASE_URL:http://localhost:8080}
+baseUrl: ${APP_BASE_URL:https://www.bag2bag.me/api}
 #C:/exam/xxx/pic  注意这个文件夹路径最好不要有中文，容易出问题！！
 userFilePath: ${USER_FILE_PATH:uploads}
 
