@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bag2bag.st.mapper.IdleItemMapper">
+  <resultMap id="BaseResultMap" type="com.bag2bag.st.entity.IdleItem">
+    <id column="id" jdbcType="BIGINT" property="id"/>
+    <result column="idle_name" jdbcType="VARCHAR" property="idleName"/>
+    <result column="idle_details" jdbcType="VARCHAR" property="idleDetails"/>
+    <result column="picture_list" jdbcType="VARCHAR" property="pictureList"/>
+    <result column="idle_price" jdbcType="DECIMAL" property="idlePrice"/>
+    <result column="idle_original_price" jdbcType="DECIMAL" property="idleOriginalPrice"/>
+    <result column="idle_place" jdbcType="VARCHAR" property="idlePlace"/>
+    <result column="idle_label" jdbcType="INTEGER" property="idleLabel"/>
+    <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime"/>
+    <result column="idle_status" jdbcType="TINYINT" property="idleStatus"/>
+    <result column="idle_trade" jdbcType="INTEGER" property="idleTrade"/>
+    <result column="user_id" jdbcType="BIGINT" property="userId"/>
+    <result column="idle_new" jdbcType="BIGINT" property="idleNew"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, idle_name, idle_details, picture_list,
+  idle_price, idle_original_price, idle_place, idle_label,
+  release_time, idle_status, idle_trade, user_id, idle_new
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sh_idle_item
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="getAllIdleItem" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sh_idle_item
+    where user_id = #{userId,jdbcType=BIGINT} and idle_status!=0 order by id desc
+  </select>
+  <select id="countIdleItem"  resultType="int">
+    select COUNT(*) from sh_idle_item
+    where (idle_name LIKE "%"#{idleName}"%" or idle_details LIKE "%"#{idleDetails}"%") and idle_status = 1
+  </select>
+  <select id="countIdleItemByLable"  resultType="int">
+    select COUNT(*) from sh_idle_item
+    where idle_label = #{idleLabel} and idle_status = 1
+  </select>
+  <select id="countIdleItemByStatus"  resultType="int">
+    select COUNT(*) from sh_idle_item
+    where idle_status = #{status}
+  </select>
+  <select id="findIdleItem" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sh_idle_item
+    where (idle_name LIKE "%"#{findValue}"%" or idle_details LIKE "%"#{findValue}"%") and idle_status = 1 order by id desc limit #{begin}, #{nums}
+  </select>
+  <select id="findIdleItemByLable" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sh_idle_item
+    where idle_label = #{idleLabel}  and idle_status = 1 order by id desc limit #{begin}, #{nums}
+  </select>
+  <select id="getIdleItemByStatus" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sh_idle_item
+    where idle_status = #{status} order by id desc limit #{begin}, #{nums}
+  </select>
+  <select id="findIdleByList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sh_idle_item where id in
+    <foreach collection="idList" index="index" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+    order by id desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sh_idle_item
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id"
+          parameterType="com.bag2bag.st.entity.IdleItem" useGeneratedKeys="true">
+    insert into sh_idle_item (
+      idle_name, idle_details, picture_list,
+      idle_price, idle_original_price, idle_place, idle_label,
+      release_time, idle_status, idle_trade, user_id, idle_new
+    ) values (
+               #{idleName}, #{idleDetails}, #{pictureList},
+               #{idlePrice}, #{idleOriginalPrice}, #{idlePlace}, #{idleLabel},
+               #{releaseTime}, #{idleStatus}, #{idleTrade}, #{userId}, #{idleNew}
+             )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.bag2bag.st.entity.IdleItem" useGeneratedKeys="true">
+    insert into sh_idle_item
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="idleName != null">
+        idle_name,
+      </if>
+      <if test="idleDetails != null">
+        idle_details,
+      </if>
+      <if test="pictureList != null">
+        picture_list,
+      </if>
+      <if test="idlePrice != null">
+        idle_price,
+      </if>
+      <if test="idlePlace != null">
+        idle_place,
+      </if>
+      <if test="idleLabel != null">
+        idle_label,
+      </if>
+      <if test="releaseTime != null">
+        release_time,
+      </if>
+      <if test="idleStatus != null">
+        idle_status,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="idleOriginalPrice != null">
+       idle_original_price,
+      </if>
+      <if test="idleTrade != null">
+       idle_trade,
+      </if>
+      <if test="idleNew != null">
+       idle_new,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="idleName != null">
+        #{idleName,jdbcType=VARCHAR},
+      </if>
+      <if test="idleDetails != null">
+        #{idleDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="pictureList != null">
+        #{pictureList,jdbcType=VARCHAR},
+      </if>
+      <if test="idlePrice != null">
+        #{idlePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="idlePlace != null">
+        #{idlePlace,jdbcType=VARCHAR},
+      </if>
+      <if test="idleLabel != null">
+        #{idleLabel,jdbcType=INTEGER},
+      </if>
+      <if test="releaseTime != null">
+        #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idleStatus != null">
+        #{idleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="idleOriginalPrice != null">
+       #{idleOriginalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="idleTrade != null">
+       #{idleTrade,jdbcType=TINYINT},
+      </if>
+      <if test="idleNew != null">
+       #{idleNew, jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bag2bag.st.entity.IdleItem">
+    update sh_idle_item
+    <set>
+      <if test="idleName != null">
+        idle_name = #{idleName,jdbcType=VARCHAR},
+      </if>
+      <if test="idleDetails != null">
+        idle_details = #{idleDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="pictureList != null">
+        picture_list = #{pictureList,jdbcType=VARCHAR},
+      </if>
+      <if test="idlePrice != null">
+        idle_price = #{idlePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="idleOriginalPrice != null">
+        idle_original_price = #{idleOriginalPrice},
+      </if>
+      <if test="idlePlace != null">
+        idle_place = #{idlePlace,jdbcType=VARCHAR},
+      </if>
+      <if test="idleLabel != null">
+        idle_label = #{idleLabel,jdbcType=INTEGER},
+      </if>
+      <if test="releaseTime != null">
+        release_time = #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idleStatus != null">
+        idle_status = #{idleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="idleTrade != null">
+        idle_trade = #{idleTrade},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId},
+      </if>
+      <if test="idleNew != null">
+        idle_new = #{idleNew},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bag2bag.st.entity.IdleItem">
+    update sh_idle_item
+    set idle_name = #{idleName},
+        idle_details = #{idleDetails},
+        picture_list = #{pictureList},
+        idle_price = #{idlePrice},
+        idle_original_price = #{idleOriginalPrice},
+        idle_place = #{idlePlace},
+        idle_label = #{idleLabel},
+        release_time = #{releaseTime},
+        idle_status = #{idleStatus},
+        idle_trade = #{idleTrade},
+        user_id = #{userId},
+        idle_new = #{idleNew}
+    where id = #{id}
+  </update>
+
+  <update id="updateIdleStatusToOffShelf">
+    UPDATE sh_idle_item
+    SET idle_status = 2
+    WHERE id = #{id}
+  </update>
+</mapper>

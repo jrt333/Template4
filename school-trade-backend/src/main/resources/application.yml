@@ -1,0 +1,68 @@
+# YML是一种文件格式，全称为YAML（YAML Ain't Markup Language），SpringBoot通常使用YML作为项目配置。
+# 它是一种人类可读的、简洁明了的数据序列化格式。YAML文件格式通常用于配置文件、数据交换、消息传递和其他应用程序。
+# 可以通过文本编辑器进行编辑，也可以通过程序进行解析。YML文件格式是一种以层级缩进的方式表示程序数据结构的格式。
+# 在数据表示方面比XML等格式更加简洁清晰易读。YML文件格式通常以“.yml”为扩展名。
+
+#Spring相关配置
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sni034@aucklanduni.ac.nz
+    password: cotzwrypnriepbsh
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.ssl.protocols: TLSv1.2
+    default-encoding: UTF-8
+
+
+  #数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/DB_School_trade?serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #web文件限制配置
+  servlet:
+    multipart:
+     enabled: true
+     max-file-size: 200MB
+     max-request-size: 200MB
+  #Json配置
+  jackson:
+    time: GMT+13
+    date-format: yyyy-MM-dd HH:mm:ss
+
+
+#文件路径
+baseUrl: http://localhost:8080
+#C:/exam/xxx/pic  注意这个文件夹路径最好不要有中文，容易出问题！！
+userFilePath: 'C:\Users\xiran\Desktop\capstone-project-s2-2025-neverbug\pic'
+
+#Mybatis配置
+mybatis:
+  typeAliasesPackage: com.bag2bag.st.entity
+  mapperLocations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    # 你的 Mapper 介面所在的 package（請用實際的）
+    com.bag2bag.st.mapper: debug
+    #（可選）MyBatis 相關日誌更詳細
+    org.mybatis: debug
+
+google:
+  oauth2:
+    client-id: 42722722873-qr08vjl9t9fu498fi6p6s1jv9ooj9q0e.apps.googleusercontent.com
+    client-secret: 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
+    redirect-uri: http://localhost:8080/oauth2/callback
+    token-uri: https://oauth2.googleapis.com/token
+    token-info-uri: https://oauth2.googleapis.com/tokeninfo
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+gemini:
+  api:
+    key: AIzaSyCCUd5mn5i1lqvXPxnergau7sWL5YMxOEs
