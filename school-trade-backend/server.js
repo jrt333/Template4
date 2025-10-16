@@ -146,7 +146,4 @@ function deliver(to, payload, ws, userId, kind) {
         try { fromWs && fromWs.send(JSON.stringify({ type: 'queued', to, ts: msg.ts, kind })); } catch {}
     }
 
-    if (!msg.noEchoToSender && fromWs && fromWs.readyState === fromWs.OPEN) {
-        try { fromWs.send(JSON.stringify(msg)); } catch (e) { console.warn('echo back fail', e); }
-    }
 }

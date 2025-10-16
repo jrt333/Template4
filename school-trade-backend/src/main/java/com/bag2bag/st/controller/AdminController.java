@@ -1,5 +1,6 @@
 package com.bag2bag.st.controller;
 
+import com.bag2bag.st.dto.AdminLoginRequest;
 import com.bag2bag.st.entity.Admin;
 import com.bag2bag.st.entity.IdleItem;
 import com.bag2bag.st.entity.User;
@@ -10,9 +11,11 @@ import com.bag2bag.st.service.OrderService;
 import com.bag2bag.st.service.UserService;
 import com.bag2bag.st.vo.R;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -25,6 +28,7 @@ import javax.validation.constraints.NotNull;
 @CrossOrigin
 @RestController
 @RequestMapping("admin")
+@Validated
 public class AdminController {
 
     @Resource
@@ -53,6 +57,22 @@ public class AdminController {
             @RequestParam("adminPassword") @NotNull @NotEmpty String adminPassword,
             HttpSession session
     ) {
+        return doLogin(accountNumber, adminPassword, session);
+    }
+
+    /**
+     * 管理员登录（POST 版本，便于前端以 JSON/form 方式提交）
+     *
+     * @param request 登录请求体
+     * @param session session
+     * @return 登录结果
+     */
+    @PostMapping("login")
+    public R login(@Valid @RequestBody AdminLoginRequest request, HttpSession session) {
+        return doLogin(request.getAccountNumber(), request.getAdminPassword(), session);
+    }
+
+    private R doLogin(String accountNumber, String adminPassword, HttpSession session) {
         Admin admin = adminService.login(accountNumber, adminPassword);
         if (null == admin) {
             return R.fail(ErrorMsg.EMAIL_LOGIN_ERROR);

@@ -297,11 +297,19 @@ const api = {
             data: data
         });
     },
-    adminLogin(query) {
+    adminLogin(data, options = {}) {
+        const method = (options.method || 'post').toLowerCase();
+        if (method === 'get') {
+            return request({
+                url: '/admin/login',
+                method: 'get',
+                params: data
+            });
+        }
         return request({
             url: '/admin/login',
-            method: 'get',
-            params: query
+            method: 'post',
+            data: data
         });
     },
     enhanceText(data) {

@@ -26,8 +26,9 @@
           <el-form-item label="Password">
             <el-input v-model.trim="form.password" type="password" show-password />
           </el-form-item>
-          <el-button type="primary" @click="onSubmit">Login</el-button>
+            <el-button type="primary" :loading="loading" @click="onSubmit">Login</el-button>
         </el-form>
+          <p class="err" v-if="err">{{ err }}</p>
       </section>
     </div>
   </div>
@@ -62,14 +63,18 @@ export default {
         adminPassword: this.form.password
       })
           .then((res) => {
-            // 你的接口是会话制，只要能到 then（HTTP 200）就视为成功，直接跳转
-            this.$router.replace('/platform-admin').catch(()=>{})
+              if (res && res.status_code === 1) {
+                  this.$router.replace('/platform-admin').catch(() => {})
+                  return
+              }
+              this.err = (res && res.msg) || 'Login failed'
           })
-          .catch(() => {
-            this.err = 'Login failed'
+          .catch((error) => {
+              const msg = error?.msg || error?.response?.data?.msg
+              this.err = msg || 'Login failed'
           })
           .finally(() => {
-            this.loading = false
+              this.loading = false
           })
     }
   }
