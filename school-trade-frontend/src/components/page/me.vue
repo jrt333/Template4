@@ -374,7 +374,8 @@ export default {
                 major: "", // 对应数据库 major 字段
                 country: "", // 对应数据库 National 字段（注意大写N）
                 degree: "", // 对应数据库 degree 字段
-                rating: "5.0" // 对应数据库 rating 字段
+                rating: 0, // 对应数据库 rating 字段
+                rating_count: 0
             }
         };
     },
@@ -423,6 +424,8 @@ export default {
             this.userInfo = (this.$globalData && this.$globalData.userInfo) ? this.$globalData.userInfo : {};
             // 可加保底欄位
             this.userInfo.nickname = this.userInfo.nickname || 'User name';
+            this.userInfo.rating = this.normalizeRating(this.userInfo.rating);
+            this.userInfo.rating_count = this.normalizeCount(this.userInfo.rating_count);
         },
 
         starClass (n) {
@@ -445,15 +448,31 @@ export default {
                         major: d.major || '',
                         degree: d.degree || '',
                         signInTime: d.signInTime || '',
-                        rating: d.rating || '',
-                        rating_count: d.rating_count || '',
+                        rating: this.normalizeRating(d.rating),
+                        rating_count: this.normalizeCount(d.rating_count),
                     }
                     return
                 }
             } catch (e) {
                 console.warn('loadOtherProfile failed', e)
             }
-            this.userInfo = { id: Number(uid), nickname: 'User name' } // 保底
+            this.userInfo = { id: Number(uid), nickname: 'User name', rating: 0, rating_count: 0 } // 保底
+        },
+
+        normalizeRating (value) {
+            const numeric = Number(value);
+            if (!Number.isFinite(numeric) || numeric < 0) {
+                return 0;
+            }
+            return numeric;
+        },
+
+        normalizeCount (value) {
+            const numeric = Number.parseInt(value, 10);
+            if (!Number.isFinite(numeric) || numeric < 0) {
+                return 0;
+            }
+            return numeric;
         },
 
         goPrivateChat () {

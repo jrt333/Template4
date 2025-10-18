@@ -69,3 +69,6 @@ gemini:
 
 app:
   frontend-origin: ${APP_FRONTEND_ORIGIN:https://www.bag2bag.me}
+  websocket:
+    base-url: ${APP_WS_BASE_URL:}
+    prefix: ${APP_WS_PREFIX:webSocketServer}

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -41,6 +42,12 @@ public class UserController {
 
     @Resource
     private GoogleOAuthService googleOAuthService;
+
+    @Value("${app.websocket.base-url:}")
+    private String configuredWsBaseUrl;
+
+    @Value("${app.websocket.prefix:webSocketServer}")
+    private String wsPathPrefix;
 
 
     /**
@@ -209,8 +216,8 @@ public class UserController {
         data.put("major", user.getMajor());
         data.put("degree", user.getDegree());
         data.put("signInTime", user.getSignInTime());
-        data.put("rating", user.getRating());
-        data.put("rating_count", user.getRatingCount());
+        data.put("rating", user.getRating() != null ? user.getRating().doubleValue() : 0D);
+        data.put("rating_count", user.getRatingCount() != null ? user.getRatingCount() : 0);
 
         return R.success(data);
     }
@@ -264,6 +271,129 @@ public class UserController {
                             @RequestParam("score") BigDecimal score) {
         userService.applyRating(userId, score);
         return R.success();
+    }
+    @GetMapping("webSocketServer")
+    public R<Map<String, Object>> getUserWebSocketServer(
+            @CookieValue(value = "shUserId", defaultValue = "") String id,
+            HttpServletRequest request
+    ) {
+        if (id.isEmpty()) {
+            return R.fail(ErrorMsg.COOKIE_ERROR);
+        }
+
+        String baseUrl = resolveWebSocketBaseUrl(request);
+        String normalizedBase = stripTrailingSlash(baseUrl);
+        String connectionUrl = joinUrl(normalizedBase, id);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", id);
+        data.put("baseUrl", normalizedBase);
+        data.put("prefix", normalizePrefix());
+        data.put("url", connectionUrl);
+        data.put("server", connectionUrl);
+        data.put("wsUrl", connectionUrl);
+        data.put("serverUrl", connectionUrl);
+        data.put("webSocketUrl", connectionUrl);
+
+        return R.success(data);
+    }
+
+    private String resolveWebSocketBaseUrl(HttpServletRequest request) {
+        String configured = stripTrailingSlash(configuredWsBaseUrl);
+        if (!configured.isEmpty()) {
+            return configured;
+        }
+
+        if (request == null) {
+            return "ws://localhost:3001/" + normalizePrefix();
+        }
+
+        String protoHeader = firstNonEmpty(
+                request.getHeader("X-Forwarded-Proto"),
+                request.getHeader("X-Forwarded-Protocol"),
+                request.getScheme()
+        );
+        String protocol = normalizeProtocol(protoHeader, request.isSecure());
+
+        String hostHeader = firstNonEmpty(
+                request.getHeader("X-Forwarded-Host"),
+                request.getHeader("Host")
+        );
+
+        String host;
+        if (hostHeader != null) {
+            host = hostHeader.split(",", 2)[0].trim();
+        } else {
+            host = request.getServerName();
+            int port = request.getServerPort();
+            boolean standardPort = ("ws".equals(protocol) && port == 80) || ("wss".equals(protocol) && port == 443);
+            if (!standardPort && port > 0) {
+                host = host + ":" + port;
+            }
+        }
+
+        String prefix = normalizePrefix();
+        return protocol + "://" + host + "/ws/" + prefix;
+    }
+
+    private String normalizeProtocol(String proto, boolean secureFallback) {
+        if (proto == null || proto.trim().isEmpty()) {
+            return secureFallback ? "wss" : "ws";
+        }
+        String lower = proto.trim().toLowerCase();
+        if ("https".equals(lower)) {
+            return "wss";
+        }
+        if ("http".equals(lower)) {
+            return "ws";
+        }
+        if (lower.startsWith("ws")) {
+            return lower.startsWith("wss") ? "wss" : "ws";
+        }
+        return secureFallback ? "wss" : "ws";
+    }
+
+    private String normalizePrefix() {
+        String prefix = wsPathPrefix == null ? "" : wsPathPrefix.trim();
+        if (prefix.isEmpty()) {
+            return "webSocketServer";
+        }
+        return prefix.replaceAll("^/+|/+$", "");
+    }
+
+    private String stripTrailingSlash(String value) {
+        if (value == null) {
+            return "";
+        }
+        String trimmed = value.trim();
+        while (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed;
+    }
+
+    private String joinUrl(String base, String segment) {
+        String normalizedBase = stripTrailingSlash(base);
+        String normalizedSegment = segment == null ? "" : segment.replaceAll("^/+", "");
+        if (normalizedBase.isEmpty()) {
+            return normalizedSegment;
+        }
+        return normalizedBase + "/" + normalizedSegment;
+    }
+
+    private String firstNonEmpty(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String v : values) {
+            if (v != null) {
+                String trimmed = v.trim();
+                if (!trimmed.isEmpty()) {
+                    return trimmed;
+                }
+            }
+        }
+        return null;
     }
 
 }
