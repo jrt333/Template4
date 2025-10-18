@@ -36,7 +36,7 @@ function parseUserIdFromUrl(url) {
         const path = new URL(url, 'ws://placeholder').pathname;
         const seg = path.split('/').filter(Boolean);
         if (!seg.length) return '';
-        if (seg[0] === 'wsPrefix') return seg[1] || '';
+        if (seg[0] === wsPrefix) return seg[1] || '';
         return seg[0];
     } catch { return ''; }
 }

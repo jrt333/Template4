@@ -3,10 +3,9 @@
 // 1) 寫入本地資料層（索引/未讀/訊息）
 // 2) 廣播給訂閱者（例如 PrivateChat.vue 的 onBusEvent）
 
-import { connectWebSocket } from '@/utils/websocket'
-import { recordIncoming } from '@/stores/chatStoreLite'
-import { playSound, flashTitle, desktopNotify, stopFlashTitle } from '@/utils/notify'
-
+import {connectWebSocket} from '@/utils/websocket'
+import {recordIncoming} from '@/stores/chatStoreLite'
+import {desktopNotify, flashTitle, playSound, stopFlashTitle} from '@/utils/notify'
 
 let _ws = null
 let _selfId = null
@@ -19,7 +18,6 @@ document.addEventListener('visibilitychange', () => {
     if (_visible) stopFlashTitle()
 })
 export function setActivePeer(peerId) { _activePeerId = String(peerId || '') }
-
 
 export function ensureGlobalChat (selfId) {
     const id = String(selfId || '')
@@ -34,11 +32,6 @@ function _emitToSubs (evt) {
     _subs.forEach(fn => { try { fn(evt) } catch (_) {} })
 }
 
-function shouldNotify(fromId) {
-    if (!_visible) return true
-    return String(fromId) !== String(_activePeerId)
-}
-
 function doNotifyPreview(e) {
     const body = e.text ? String(e.text) : (e.card ? '[交易小卡]' : '[新消息]')
     desktopNotify({ title: `來自用戶 ${e.from}`, body })
@@ -47,10 +40,10 @@ function doNotifyPreview(e) {
 }
 
 
-
-
-
-
+function shouldNotify(fromId) {
+    if (!_visible) return true
+    return String(fromId) !== String(_activePeerId)
+}
 
 
 function onWSMessage (evt) {
@@ -62,10 +55,9 @@ function onWSMessage (evt) {
     const ts   = e.ts || Date.now()
 
     if (!type || !from) {
-
+        // 無效事件不處理
         return
     }
-    if (String(from) === String(_selfId)) return
 
     if (type === 'chat') {
         // 寫入本地 thread（新版 chatStoreLite 可收物件）
@@ -78,17 +70,12 @@ function onWSMessage (evt) {
         recordIncoming(_selfId, from, { kind: 'card', card: e, ts })
         _emitToSubs({ ...e, type: 'TRADE_CARD', from, ts })
 
-    }else if (type === 'TRADE_FINAL') {
-        // 把完成卡正確寫入本地，避免被當成 sys 訊息
-        recordIncoming(_selfId, from, {kind: 'final', card: e, ts});
-        _emitToSubs({...e, type: 'TRADE_FINAL', from, ts});
-    } else if (type === 'IMAGE' || type === 'chat-image') {
+    }else if (type === 'chat-image') {
         // ★ 這是重點：把圖片當成 image 類型存起來＆廣播
-        recordIncoming(_selfId, from, { kind: 'image', url: e.url, ts })
-        _emitToSubs({ ...e, type: 'IMAGE', from, ts })
-
-    } else if (type === 'LOCATION') {
-
+        recordIncoming(_selfId, from, {kind: 'image', url: e.url, ts})
+        _emitToSubs({...e, type: 'IMAGE', from, ts})
+    }
+    else if (type === 'LOCATION') {
         // 👇 新增：处理位置消息
         const locationData = {
             kind: 'location',
@@ -97,8 +84,7 @@ function onWSMessage (evt) {
         }
         recordIncoming(_selfId, from, locationData)
         _emitToSubs({ ...e, type: 'LOCATION', from, ts })
-
-    }else {
+    }else{
         // 其他型別先也寫入/廣播（視需求可加更多分支）
         recordIncoming(_selfId, from, { kind: e.card ? 'card' : (e.text ? 'text' : 'sys'), card: e.card || null, text: e.text || '', ts })
         _emitToSubs({ ...e, type, from, ts })
